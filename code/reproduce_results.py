@@ -7,7 +7,7 @@ from configs.wavelet_configs import *
 
 def main():
     
-    datafolder = '../data/ptbxl/'
+    datafolder = '../data/ptbxl/physionet.org/files/ptb-xl/1.0.3/'
     datafolder_icbeb = '../data/ICBEB/'
     outputfolder = '../output/'
 
