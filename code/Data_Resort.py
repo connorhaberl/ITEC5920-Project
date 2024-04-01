@@ -92,12 +92,13 @@ def write_superclass_database(superclass_folder, superclass, csv_file_path):
                     writer.writerow(row)
 
 # Define base directory
-base_folder = "C:\\Users\\haber\\Documents\\School\\ITEC5920 Applied Deep Learning\Project\\data"
+base_folder = os.path.join("..","data")
 
-source_directory = base_folder + "\\records100"  # eventually remove test_folder
-destination_directory = base_folder + "\\Superclass_sorted_records"
-csv_file_path = base_folder + "\\ptbxl_database.csv"
-scp_file_path = base_folder + "\\scp_statements.csv"
+source_directory = os.path.join(base_folder,"records100")  # eventually remove test_folder
+destination_directory =  os.path.join(base_folder,"Superclass_sorted_records")
+csv_file_path = os.path.join(base_folder,"ptbxl_database.csv")
+scp_file_path = os.path.join(base_folder,"scp_statements.csv")
+
 
 # Generate subclass to superclass mappings
 load_scp_mapping(scp_file_path)
