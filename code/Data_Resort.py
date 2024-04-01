@@ -66,13 +66,14 @@ def resort_ecg_data(source_dir, destination_dir):
             if file.endswith("_lr.dat"):
                 src_file_path = os.path.join(subdir, file)
                 superclass = get_superclass(file)
-                if superclass != "Unknown":
-                    superclass_folder = os.path.join(destination_dir, superclass)
-                    dest_folder = os.path.join(superclass_folder, subdir.split("\\")[-1])  # Get the last part of the subdir
-                    os.makedirs(dest_folder, exist_ok=True)
-                    shutil.copy(src_file_path, dest_folder)
-                else:
-                    print(f"Unknown superclass for file: {file}")
+                #if superclass != "Unknown":
+                superclass_folder = os.path.join(destination_dir, superclass)
+                dest_folder = os.path.join(superclass_folder, subdir.split("\\")[-1])  # Get the last part of the subdir
+                os.makedirs(dest_folder, exist_ok=True)
+                shutil.copy(src_file_path, dest_folder)
+                #else:
+
+                #    print(f"Unknown superclass for file: {file}")
 
 # Function to write a new ptbxl_database.csv file within each superclass folder
 def write_superclass_database(superclass_folder, superclass, csv_file_path):
