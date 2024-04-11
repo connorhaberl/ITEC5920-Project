@@ -6,6 +6,39 @@ user-provided models within our framework. We also maintain a leaderboard for th
 on this page, so feel free to submit your results as PRs.
 
 Please acknowledge our work by citing the corresponding articles listed in **References** below.
+# Connor and Phillippe's work
+
+Our work was laid on top of the Deep Learning for ECG Analysis: Benchmarks and Insights from PTB-XL Database
+
+## Reproduce_results.py
+
+This file is was used to obtain a baseline from the models created by others to test our models, it was also used to test the function and debug our models. 
+
+## Reproduce_results_overnight.py
+
+This file is the compllation of all the training that needs to be performed to run our cascade classifiers. First it trains all subclass classifiers on the classified data. Then it trains the two superclass classfiers. Finally it assembles the cascade classifiers and performs the evaluation scrips on all of them. The model performance is saved in output/'SUBCLASS'/models/results/teresults.csv, and the predictions are saved in output/'SUBCLASS or CASCADE'/models/'model_name'/y_test_pred.npy, while the truth labels are stored in /output/'SUBCLASS or CASCADE'/data/y_test.npy'
+
+## Models
+
+### Random Forest
+
+### Cascade Classifier - RF
+
+### Cascade Classifier - Resnet1D
+
+## Utils 
+
+### Data_Resort.py
+
+### npy_loader
+
+### metric_loader
+
+### generate_confusion_mat.py
+
+###
+
+
 
 
 ## Setup

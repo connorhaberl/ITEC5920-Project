@@ -32,7 +32,10 @@ def evaluate_experiment(y_true, y_pred, thresholds=None):
         results['G_beta_macro'] = challenge_scores['G_beta_macro']
 
     # label based metric
+       
+    # We get an error here but not sure why
     results['macro_auc'] = roc_auc_score(y_true, y_pred, average='macro')
+
     
     df_result = pd.DataFrame(results, index=[0])
     return df_result
@@ -114,21 +117,21 @@ def apply_thresholds(preds, thresholds):
 # DATA PROCESSING STUFF
 
 def load_dataset(path, sampling_rate, release=False):
-    if path.split('/')[-2] == 'ptbxl':
-        # load and convert annotation data
-        Y = pd.read_csv(path+'ptbxl_database.csv', index_col='ecg_id')
-        Y.scp_codes = Y.scp_codes.apply(lambda x: ast.literal_eval(x))
-
-        # Load raw signal data
-        X = load_raw_data_ptbxl(Y, sampling_rate, path)
-
-    elif path.split('/')[-2] == 'ICBEB':
-        # load and convert annotation data
-        Y = pd.read_csv(path+'icbeb_database.csv', index_col='ecg_id')
-        Y.scp_codes = Y.scp_codes.apply(lambda x: ast.literal_eval(x))
-
-        # Load raw signal data
-        X = load_raw_data_icbeb(Y, sampling_rate, path)
+    #if path.split('/')[-2] == 'ptbxl':
+    
+    # load and convert annotation data
+    Y = pd.read_csv(path+'ptbxl_database.csv', index_col='ecg_id')
+    Y.scp_codes = Y.scp_codes.apply(lambda x: ast.literal_eval(x))
+    # Load raw signal data
+    X = load_raw_data_ptbxl(Y, sampling_rate, path)
+    
+    #elif path.split('/')[-2] == 'ICBEB':
+    #    # load and convert annotation data
+    #    Y = pd.read_csv(path+'icbeb_database.csv', index_col='ecg_id')
+    #    Y.scp_codes = Y.scp_codes.apply(lambda x: ast.literal_eval(x))
+    #
+    #    # Load raw signal data
+    #    X = load_raw_data_icbeb(Y, sampling_rate, path)
 
     return X, Y
 
@@ -368,13 +371,14 @@ def generate_ptbxl_summary_table(selection=None, folder='../output/'):
             
             try:
                 me_res = pd.read_csv(folder+str(e)+'/models/'+str(m)+'/results/te_results.csv', index_col=0)
-    
+                print("got here into the try block")
                 mean1 = me_res.loc['point'][metric1]
                 unc1 = max(me_res.loc['upper'][metric1]-me_res.loc['point'][metric1], me_res.loc['point'][metric1]-me_res.loc['lower'][metric1])
 
                 results_dic[e+'_AUC'].append("%.3f(%.2d)" %(np.round(mean1,3), int(unc1*1000)))
 
             except FileNotFoundError:
+                print(folder+str(e)+'/models/'+str(m)+'/results/te_results.csv')
                 results_dic[e+'_AUC'].append("--")
             
             

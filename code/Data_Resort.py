@@ -50,7 +50,7 @@ def load_superclass_mappings(csv_file):
             scp_codes = eval(row['scp_codes'])
             for key in scp_codes.keys():
                 scp_counts[key] = scp_counts[key] + 1
-            superclass = scp_mappings[list(scp_codes.keys())[0]]  # Assuming the first key in scp_codes is the superclass
+            superclass = scp_mappings[list(scp_codes.keys())[0]]  # Assuming             first key in scp_codes is the superclass
             if superclass not in valid_superclasses:
                 superclass = "Unknown"
             ecg_classifications[ecg_id] = superclass
@@ -61,14 +61,30 @@ def get_superclass(file_name):
 
 # Function to move files to appropriate folders
 def resort_ecg_data(source_dir, destination_dir):
+    index = 0
     for subdir, _, files in os.walk(source_dir):
         for file in files:
-            if file.endswith("_lr.dat"):
+            if file.endswith("_lr.dat") or file.endswith("_lr.hea"):
                 src_file_path = os.path.join(subdir, file)
-                superclass = get_superclass(file)
+                
+                sc_file = file[:-3]+"dat"
+                superclass = get_superclass(sc_file)
                 #if superclass != "Unknown":
-                superclass_folder = os.path.join(destination_dir, superclass)
-                dest_folder = os.path.join(superclass_folder, subdir.split("\\")[-1])  # Get the last part of the subdir
+                #superclass_folder = os.path.join(destination_dir, superclass)
+                superclass_folder = os.path.join(destination_dir, superclass, "records100")
+                dest_folder = os.path.join(superclass_folder, subdir.split("/")[-1])  # Get the last part of the subdir
+
+                if index < 5:
+                    a = subdir.split("/")[-1]
+                    
+                    print(f'sub_dir split 1: {a}')
+                    
+                    #print(f'sc_file: {sc_file}')
+                    #print(f'superclass: {superclass}')
+                    #print(f'sc_folder: {superclass_folder}')
+                    #print(f'dest_folder: {dest_folder}')
+                    index +=1
+
                 os.makedirs(dest_folder, exist_ok=True)
                 shutil.copy(src_file_path, dest_folder)
                 #else:
@@ -113,4 +129,3 @@ for superclass_folder in os.listdir(destination_directory):
         write_superclass_database(os.path.join(destination_directory, superclass_folder), superclass_folder, csv_file_path)
 
 print("Data sorted and superclass database files created successfully.")
-

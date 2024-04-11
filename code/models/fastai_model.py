@@ -20,7 +20,8 @@ import math
 
 from models.base_model import ClassificationModel
 import torch 
-
+import os
+import dill as pickle
 #for lrfind
 import matplotlib
 import matplotlib.pyplot as plt
@@ -132,7 +133,9 @@ def lr_find_plot(learner, path, filename="lr_find", n_skip=10, n_skip_end=2):
 
     plt.xscale('log')
     plt.savefig(str(path/(filename+'.png')))
+    plt.close()
     plt.switch_backend(backend_old)
+    
 
 def losses_plot(learner, path, filename="losses", last:int=None):
     '''saves lr_find plot as file (normally only jupyter output)
@@ -140,6 +143,7 @@ def losses_plot(learner, path, filename="losses", last:int=None):
     '''
     backend_old= matplotlib.get_backend()
     plt.switch_backend('agg')
+    plt.xscale('linear')
     plt.ylabel("loss")
     plt.xlabel("Batches processed")
 
@@ -153,6 +157,7 @@ def losses_plot(learner, path, filename="losses", last:int=None):
     plt.legend()
 
     plt.savefig(str(path/(filename+'.png')))
+    plt.close()
     plt.switch_backend(backend_old)
 
 class fastai_model(ClassificationModel):
@@ -283,6 +288,12 @@ class fastai_model(ClassificationModel):
             losses_plot(learn, self.outputfolder,"losses"+str(len(layer_groups)))
 
         learn.save(self.name) #even for early stopping the best model will have been loaded again
+        new_path = os.path.join(self.outputfolder,"models")
+        new_file_path = os.path.join(new_path,self.name+".pkl")
+
+        os.makedirs(new_path, exist_ok=True)
+        with open(new_file_path, 'wb+') as pickle_file:
+            pickle.dump(self,pickle_file)
     
     def predict(self, X):
         X = [l.astype(np.float32) for l in X]

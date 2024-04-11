@@ -81,6 +81,7 @@ class SCP_Experiment():
     def perform(self):
 
         for model_description in self.models:
+
             modelname = model_description['modelname']
             modeltype = model_description['modeltype']
             modelparams = model_description['parameters']
@@ -100,41 +101,58 @@ class SCP_Experiment():
             elif modeltype == "fastai_model":
                 from models.fastai_model import fastai_model
                 model = fastai_model(modelname, n_classes, self.sampling_frequency, mpath, self.input_shape, **modelparams)
-            elif modeltype == "YOUR_MODEL_TYPE":
+            elif modeltype == "RANDOM_FOREST":
                 # YOUR MODEL GOES HERE!
-                from models.your_model import YourModel
-                model = YourModel(modelname, n_classes, self.sampling_frequency, mpath, self.input_shape, **modelparams)
+                from models.random_forest import random_forest
+                model = random_forest(modelname, n_classes, self.sampling_frequency, mpath, self.input_shape, **modelparams)
+            elif modeltype == "CASCADE_CLASSIFIER_RESNET":
+                from models.cascade_classifier_resnet import cascade_classifier_resnet
+                model = cascade_classifier_resnet(modelname, n_classes, self.sampling_frequency, mpath, self.input_shape, **modelparams)
+            elif modeltype == "CASCADE_CLASSIFIER":
+                from models.cascade_classifier import cascade_classifier
+                model = cascade_classifier(modelname, n_classes, self.sampling_frequency, mpath, self.input_shape, **modelparams)
+            elif modeltype == "RNN1D":
+                from models.rnn1d import RNN1d
+                model = RNN1d(modelname, n_classes, self.sampling_frequency, mpath, self.input_shape, **modelparams)
             else:
                 assert(True)
                 break
+            print("Ready to fit")
 
             # fit model
-            model.fit(self.X_train, self.y_train, self.X_val, self.y_val)
+            if modeltype == "CASCADE_CLASSIFIER" or modeltype == "CASCADE_CLASSIFIER_RESNET":
+                model.fit(self.X_train, self.y_train, self.X_val, self.y_val, self.experiment_name) #needs to know experiment name to load model
+            else:
+                model.fit(self.X_train, self.y_train, self.X_val, self.y_val)
+            
+
+            print("Model fit")
             # predict and dump
             model.predict(self.X_train).dump(mpath+'y_train_pred.npy')
+        
             model.predict(self.X_val).dump(mpath+'y_val_pred.npy')
             model.predict(self.X_test).dump(mpath+'y_test_pred.npy')
 
-        modelname = 'ensemble'
-        # create ensemble predictions via simple mean across model predictions (except naive predictions)
-        ensemblepath = self.outputfolder+self.experiment_name+'/models/'+modelname+'/'
-        # create folder for model outputs
-        if not os.path.exists(ensemblepath):
-            os.makedirs(ensemblepath)
-        if not os.path.exists(ensemblepath+'results/'):
-            os.makedirs(ensemblepath+'results/')
-        # load all predictions
-        ensemble_train, ensemble_val, ensemble_test = [],[],[]
-        for model_description in os.listdir(self.outputfolder+self.experiment_name+'/models/'):
-            if not model_description in ['ensemble', 'naive']:
-                mpath = self.outputfolder+self.experiment_name+'/models/'+model_description+'/'
-                ensemble_train.append(np.load(mpath+'y_train_pred.npy', allow_pickle=True))
-                ensemble_val.append(np.load(mpath+'y_val_pred.npy', allow_pickle=True))
-                ensemble_test.append(np.load(mpath+'y_test_pred.npy', allow_pickle=True))
-        # dump mean predictions
-        np.array(ensemble_train).mean(axis=0).dump(ensemblepath + 'y_train_pred.npy')
-        np.array(ensemble_test).mean(axis=0).dump(ensemblepath + 'y_test_pred.npy')
-        np.array(ensemble_val).mean(axis=0).dump(ensemblepath + 'y_val_pred.npy')
+        # modelname = 'ensemble'
+        # # create ensemble predictions via simple mean across model predictions (except naive predictions)
+        # ensemblepath = self.outputfolder+self.experiment_name+'/models/'+modelname+'/'
+        # # create folder for model outputs
+        # if not os.path.exists(ensemblepath):
+        #     os.makedirs(ensemblepath)
+        # if not os.path.exists(ensemblepath+'results/'):
+        #     os.makedirs(ensemblepath+'results/')
+        # # load all predictions
+        # ensemble_train, ensemble_val, ensemble_test = [],[],[]
+        # for model_description in os.listdir(self.outputfolder+self.experiment_name+'/models/'):
+        #     if not model_description in ['ensemble', 'naive']:
+        #         mpath = self.outputfolder+self.experiment_name+'/models/'+model_description+'/'
+        #         ensemble_train.append(np.load(mpath+'y_train_pred.npy', allow_pickle=True))
+        #         ensemble_val.append(np.load(mpath+'y_val_pred.npy', allow_pickle=True))
+        #         ensemble_test.append(np.load(mpath+'y_test_pred.npy', allow_pickle=True))
+        # # dump mean predictions
+        # np.array(ensemble_train).mean(axis=0).dump(ensemblepath + 'y_train_pred.npy')
+        # np.array(ensemble_test).mean(axis=0).dump(ensemblepath + 'y_test_pred.npy')
+        # np.array(ensemble_val).mean(axis=0).dump(ensemblepath + 'y_val_pred.npy')
 
     def evaluate(self, n_bootstraping_samples=100, n_jobs=20, bootstrap_eval=False, dumped_bootstraps=True):
 
@@ -164,58 +182,59 @@ class SCP_Experiment():
         # iterate over all models fitted so far
         for m in sorted(os.listdir(self.outputfolder+self.experiment_name+'/models')):
             print(m)
-            mpath = self.outputfolder+self.experiment_name+'/models/'+m+'/'
-            rpath = self.outputfolder+self.experiment_name+'/models/'+m+'/results/'
+            if(m !="ensemble"):
+                mpath = self.outputfolder+self.experiment_name+'/models/'+m+'/'
+                rpath = self.outputfolder+self.experiment_name+'/models/'+m+'/results/'
 
-            # load predictions
-            y_train_pred = np.load(mpath+'y_train_pred.npy', allow_pickle=True)
-            #y_val_pred = np.load(mpath+'y_val_pred.npy', allow_pickle=True)
-            y_test_pred = np.load(mpath+'y_test_pred.npy', allow_pickle=True)
+                # load predictions
+                y_train_pred = np.load(mpath+'y_train_pred.npy', allow_pickle=True)
+                #y_val_pred = np.load(mpath+'y_val_pred.npy', allow_pickle=True)
+                y_test_pred = np.load(mpath+'y_test_pred.npy', allow_pickle=True)
 
-            if self.experiment_name == 'exp_ICBEB':
-                # compute classwise thresholds such that recall-focused Gbeta is optimized
-                thresholds = utils.find_optimal_cutoff_thresholds_for_Gbeta(y_train, y_train_pred)
-            else:
-                thresholds = None
+                if self.experiment_name == 'exp_ICBEB':
+                    # compute classwise thresholds such that recall-focused Gbeta is optimized
+                    thresholds = utils.find_optimal_cutoff_thresholds_for_Gbeta(y_train, y_train_pred)
+                else:
+                    thresholds = None
 
-            pool = multiprocessing.Pool(n_jobs)
+                pool = multiprocessing.Pool(n_jobs)
 
-            # tr_df = pd.concat(pool.starmap(utils.generate_results, zip(train_samples, repeat(y_train), repeat(y_train_pred), repeat(thresholds))))
-            # tr_df_point = utils.generate_results(range(len(y_train)), y_train, y_train_pred, thresholds)
-            # tr_df_result = pd.DataFrame(
-            #     np.array([
-            #         tr_df_point.mean().values, 
-            #         tr_df.mean().values,
-            #         tr_df.quantile(0.05).values,
-            #         tr_df.quantile(0.95).values]), 
-            #     columns=tr_df.columns,
-            #     index=['point', 'mean', 'lower', 'upper'])
+                # tr_df = pd.concat(pool.starmap(utils.generate_results, zip(train_samples, repeat(y_train), repeat(y_train_pred), repeat(thresholds))))
+                # tr_df_point = utils.generate_results(range(len(y_train)), y_train, y_train_pred, thresholds)
+                # tr_df_result = pd.DataFrame(
+                #     np.array([
+                #         tr_df_point.mean().values, 
+                #         tr_df.mean().values,
+                #         tr_df.quantile(0.05).values,
+                #         tr_df.quantile(0.95).values]), 
+                #     columns=tr_df.columns,
+                #     index=['point', 'mean', 'lower', 'upper'])
 
-            te_df = pd.concat(pool.starmap(utils.generate_results, zip(test_samples, repeat(y_test), repeat(y_test_pred), repeat(thresholds))))
-            te_df_point = utils.generate_results(range(len(y_test)), y_test, y_test_pred, thresholds)
-            te_df_result = pd.DataFrame(
-                np.array([
-                    te_df_point.mean().values, 
-                    te_df.mean().values,
-                    te_df.quantile(0.05).values,
-                    te_df.quantile(0.95).values]), 
-                columns=te_df.columns, 
-                index=['point', 'mean', 'lower', 'upper'])
+                te_df = pd.concat(pool.starmap(utils.generate_results, zip(test_samples, repeat(y_test), repeat(y_test_pred), repeat(thresholds))))
+                te_df_point = utils.generate_results(range(len(y_test)), y_test, y_test_pred, thresholds)
+                te_df_result = pd.DataFrame(
+                    np.array([
+                        te_df_point.mean().values, 
+                        te_df.mean().values,
+                        te_df.quantile(0.05).values,
+                        te_df.quantile(0.95).values]), 
+                    columns=te_df.columns, 
+                    index=['point', 'mean', 'lower', 'upper'])
 
-            # val_df = pd.concat(pool.starmap(utils.generate_results, zip(val_samples, repeat(y_val), repeat(y_val_pred), repeat(thresholds))))
-            # val_df_point = utils.generate_results(range(len(y_val)), y_val, y_val_pred, thresholds)
-            # val_df_result = pd.DataFrame(
-            #     np.array([
-            #         val_df_point.mean().values, 
-            #         val_df.mean().values,
-            #         val_df.quantile(0.05).values,
-            #         val_df.quantile(0.95).values]), 
-            #     columns=val_df.columns, 
-            #     index=['point', 'mean', 'lower', 'upper'])
+                # val_df = pd.concat(pool.starmap(utils.generate_results, zip(val_samples, repeat(y_val), repeat(y_val_pred), repeat(thresholds))))
+                # val_df_point = utils.generate_results(range(len(y_val)), y_val, y_val_pred, thresholds)
+                # val_df_result = pd.DataFrame(
+                #     np.array([
+                #         val_df_point.mean().values, 
+                #         val_df.mean().values,
+                #         val_df.quantile(0.05).values,
+                #         val_df.quantile(0.95).values]), 
+                #     columns=val_df.columns, 
+                #     index=['point', 'mean', 'lower', 'upper'])
 
-            pool.close()
+                pool.close()
 
-            # dump results
-            #tr_df_result.to_csv(rpath+'tr_results.csv')
-            #val_df_result.to_csv(rpath+'val_results.csv')
-            te_df_result.to_csv(rpath+'te_results.csv')
+                # dump results
+                #tr_df_result.to_csv(rpath+'tr_results.csv')
+                #val_df_result.to_csv(rpath+'val_results.csv')
+                te_df_result.to_csv(rpath+'te_results.csv')
