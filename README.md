@@ -14,7 +14,7 @@ Our work was laid on top of the Deep Learning for ECG Analysis: Benchmarks and I
 
 This file is was used to obtain a baseline from the models created by others to test our models, it was also used to test the function and debug our models. 
 
-## Reproduce_results_overnight.py
+## train_evaluate_cascade.py
 
 This file is the compllation of all the training that needs to be performed to run our cascade classifiers. First it trains all subclass classifiers on the classified data. Then it trains the two superclass classfiers. Finally it assembles the cascade classifiers and performs the evaluation scrips on all of them. The model performance is saved in output/'SUBCLASS'/models/results/teresults.csv, and the predictions are saved in output/'SUBCLASS or CASCADE'/models/'model_name'/y_test_pred.npy, while the truth labels are stored in /output/'SUBCLASS or CASCADE'/data/y_test.npy'
 
@@ -22,24 +22,38 @@ This file is the compllation of all the training that needs to be performed to r
 
 ### Random Forest
 
+This file includes the functions necessary to initialize, train and make predictions using the random forest model. This is a classification model subclass and is called from the scp_experiment file.
 ### Cascade Classifier - RF
 
+This file includes the code necessary to initialize, train and make predictions using the random forest based cascade classifier. This is a classification model subclass and is called from the scp_experiment file.
+
 ### Cascade Classifier - Resnet1D
+
+This file includes the code necessary to initialize, train and make predictions using the random forest based cascade classifier. This is a classification model subclass and is called from the scp_experiment file.
+
 
 ## Utils 
 
 ### Data_Resort.py
 
+This file includes the code necessary to reformat the code into the folder shgape needed to train subclassifiers. This must be run before running train_evaluate_cascade.py
+
 ### npy_loader
+This file loads the prediction npy file into a csv for ease of data visualisation and debugging. You must choose the correct filepaths to use this file.
 
 ### metric_loader
+This file loads the metrics associated with the given prediction files. You must choose the correct filepaths to use this file.
 
 ### generate_confusion_mat.py
+This file generates confusion matricies associated with the given prediction files. You must choose the correct filepaths to use this file.
 
-###
+## Setup - Connor and Phil's work
 
-
-
+1. You must install the dependencies (wfdb, pytorch, torchvision, cudatoolkit, fastai, fastprogress). Please note that you must revert fastai to 1.0.6
+2. You must download the datset at [PTB-XL from PhysioNet](https://physionet.org/content/ptb-xl/) unzip its contest and paste THE CONTENTS of the ptbxl subfolder into the 'data' folder of this repository.
+3. Run Data_Resort.py from the code folder
+4. Run train_evaluate_cascade.py from the code folder
+5. Use various utils files to examine results
 
 ## Setup
 
@@ -49,7 +63,9 @@ Install the dependencies (wfdb, pytorch, torchvision, cudatoolkit, fastai, fastp
     conda env create -f ecg_env.yml
     conda activate ecg_env
 
-### Get data
+
+
+### Get data - Script no longer works
 Download and prepare the datasets (PTB-XL and ICBEB) via the follwing bash-script:
 
     ./get_datasets.sh
