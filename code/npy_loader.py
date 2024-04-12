@@ -4,11 +4,7 @@ import os
 
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
-#np_file = os.path.join(dir_path,'../output/exp1.1/test_bootstrap_ids.npy')
 
-# truth_labels_fp = os.path.join(dir_path,'../output/exp1.1.1/data/y_test.npy')
-# rf_labels_fp = os.path.join(dir_path,'../output/exp1.1.1/models/random_forest/y_test_pred.npy')
-# resnet_labels_fp = os.path.join(dir_path,'../output/exp1.1.1/models/fastai_xresnet1d101/y_test_pred.npy')
 exp = "exp3"
 #cascade classifier
 truth_labels_fp = os.path.join(dir_path,'../output/latest2/cascade/'+exp+'/data/y_test.npy')

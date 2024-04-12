@@ -61,7 +61,10 @@ def main():
         e = SCP_Experiment(name, task, datafolder, outputfolder, models)
         e.prepare()
         print("finished preparing")
-        
+        e.perform()
+        print("finished performing")
+        e.evaluate()
+   
     # To train class-specific subclass classifiers
 
     models = [conf_fastai_xresnet1d101]
@@ -74,7 +77,7 @@ def main():
     for subclass in ['STTC', 'NORM', 'CD', 'MI', 'HYP']:
         print('\#\#\#'+subclass+'\#\#\#')
         datafolder = '../data/Superclass_sorted_records/'+subclass+'/'
-        outputfolder = '../output/'+subclass+'/'
+        outputfolder = '../output3/'+subclass+'/'
 
         for name, task in experiments:
             e = SCP_Experiment(name, task, datafolder, outputfolder, models)
@@ -82,19 +85,10 @@ def main():
             print("finished preparing")
             e.perform()
             print("finished performing")
-            e.evaluate()
+            #e.evaluate()
+
     
 
-   
- 
-    for name, task in experiments:
-        e = SCP_Experiment(name, task, datafolder, outputfolder, models)
-        e.prepare()
-        print("finished preparing")
-        e.perform()
-        print("finished performing")
-        e.evaluate()
-    
    
 
     #train and evaluate cascade classifiers

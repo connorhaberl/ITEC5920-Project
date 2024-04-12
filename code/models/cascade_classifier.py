@@ -43,40 +43,10 @@ class cascade_classifier(ClassificationModel):
         #Load pre-trained models
 
         #Load SKLearn Model for RF
-        rf_fp = os.path.join(self.outputfolder, '../../../../../exp1.1.1/models/random_forest/models/random_forest_model.pkl') ##Need to figure out the file type & name here
+        rf_fp = os.path.join(self.outputfolder, '../../../../exp1.1.1/models/random_forest/models/random_forest_model.pkl') ##Need to figure out the file type & name here
         with open(rf_fp, 'rb') as f:
             self.model = pickle.load(f)
-        #Load Pytorch Models for other classifiers
-        # Requires each model saved in a folder nested one deeper than the normal output folder. If using a "output/something/" for the main output, need to add a ../ to each path
-
-        
-        #norm_fp = os.path.join('../output', 'NORM_only', experiment_name,'/models/fastai_xresnet1d101/models/fastai_xresnet1d101.pth') #Can't get this to work with os path
-        
-        #state = torch.load(norm_fp)
-
-        # if experiment_name == 'exp1.1':
-        #     n_classes_pretrained = 23
-        #     num_classes = 23
-        # elif experiment_name == 'exp2':
-        #     n_classes_pretrained = 19
-        #     num_classes = 19
-        # elif experiment_name == 'exp3':
-        #     n_classes_pretrained = 12
-        #     num_classes = 12
-        
-        # norm_fp = self.outputfolder + '../../../NORM_only/' + experiment_name + '/models/fastai_xresnet1d101/models/'
-        # CD_fp = self.outputfolder + '../../../CD_only/' + experiment_name + '/models/fastai_xresnet1d101/models/'
-        # MI_fp = self.outputfolder + '../../../MI_only/' + experiment_name + '/models/fastai_xresnet1d101/models/'
-        # HYP_fp = self.outputfolder + '../../../HYP_only/' + experiment_name + '/models/fastai_xresnet1d101/models/'
-        # STTC_fp = self.outputfolder + '../../../STTC_only/' + experiment_name + '/models/fastai_xresnet1d101/models/'
-
-        # norm_mpath = self.outputfolder + '../../../NORM_only/' + experiment_name + '/models/fastai_xresnet1d101/'
-
-        # self.model_CD = torch.load(CD_fp)
-        # self.model_MI = torch.load(MI_fp)
-        # self.model_HYP = torch.load(HYP_fp)
-        # self.model_STTC = torch.load(STTC_fp)
-
+        #Load FastAI Models for each superclass
         sttc_fp = os.path.join(self.outputfolder, '../../../../STTC/' + experiment_name + '/models/fastai_xresnet1d101/models/fastai_xresnet1d101.pkl') ##Need to figure out the file type & name here
         with open(sttc_fp, 'rb') as f:
             self.model_STTC = pickle.load(f)
@@ -97,13 +67,15 @@ class cascade_classifier(ClassificationModel):
         with open(hyp_fp, 'rb') as f:
             self.model_HYP = pickle.load(f)
 
+       
+
         self.experiment = experiment_name
         pass
     
 
     def predict(self, X):
         #Use cascade classifier
-        mlb_fp = os.path.join(self.outputfolder, '../../../../../exp1.1.1/data/mlb.pkl')
+        mlb_fp = os.path.join(self.outputfolder, '../../../../exp1.1.1/data/mlb.pkl')
         mlb = pickle.load(open(mlb_fp, 'rb'))
         X_t = transform(X)
         rf_predictions = np.array(self.model.predict(X_t))
@@ -135,8 +107,7 @@ class cascade_classifier(ClassificationModel):
 
         
 
-        #print("RF Pred Dimensions",get_dimensions(rf_predictions))
-        #print("Norm Pred Dimensions",get_dimensions(STTC_predictions))
+       
         print("RF Pred Dimensions:" + str(rf_predictions.shape))
         print("Norm Pred Dimensions"+ str(NORM_predictions.shape))
 
@@ -144,7 +115,7 @@ class cascade_classifier(ClassificationModel):
         # #Create a list of all the predictions from each model
         second_tier_predictions = {"CD":CD_predictions, "HYP":HYP_predictions,  "MI":MI_predictions, "NORM":NORM_predictions, "STTC":STTC_predictions}
         
-        all_keys_fp = os.path.join(self.outputfolder, '../../../../../' + self.experiment + '/data/mlb.pkl')
+        all_keys_fp = os.path.join(self.outputfolder, '../../../../' + self.experiment + '/data/mlb.pkl')
         print(all_keys_fp)
         all_mlb = pickle.load(open(all_keys_fp, 'rb'))
         all_classes = list(all_mlb.classes_)
@@ -170,8 +141,7 @@ class cascade_classifier(ClassificationModel):
         
         superclass_lkp = list(mlb.classes_)
         
-        #print("superclass incices: ", enumerate(superclass_indices))
-        #print("superclass len: ", len(enumerate(superclass_indices)))
+
         print("predictions shape CD" , second_tier_predictions['CD'].shape)
         print("predictions shape HYP" , second_tier_predictions['HYP'].shape)
         print("predictions shape MI" , second_tier_predictions['MI'].shape)
@@ -184,13 +154,7 @@ class cascade_classifier(ClassificationModel):
         
         for row, sc_index in enumerate(single_col):          
             predictions[row,:] = second_tier_predictions[superclass_lkp[sc_index]][row,:]
-            #predictions.append(second_tier_predictions[superclass_lkp[sc_index]][row])
-        
-        #predictions = np.array(predictions)
-        print(f'Predictions: {predictions.shape}')
-        #print(predictions[:5,5:20])
-        #print(predictions[:10,:])
-
+    
         return predictions
         pass
 

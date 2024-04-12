@@ -8,20 +8,12 @@ from configs.your_configs import *
 
 
 def main():
-    #physionet.org/files/ptb-xl/1.0.3/
-    #class specific
-    #datafolder = '../data/Superclass_sorted_records/STTC/'
+    #select input and output folders
     datafolder = '../data/'
+    outputfolder = '../output/'
+
     
-    #datafolder_icbeb = '../data/ICBEB/'
-    #class specific
-    #outputfolder = '../output/latest2/STTC/'
-    #outputfolder = '../output/'
-    outputfolder = '../output/stateoftheart/'
-
-    #outputfolder = '../output/latest/'
-    #outputfolder = '../outputs/random_forest4/'
-
+#select models to be used
     models = [
         conf_fastai_xresnet1d101,
         # conf_fastai_resnet1d_wang,
@@ -37,7 +29,7 @@ def main():
     ##########################################
     # STANDARD SCP EXPERIMENTS ON PTBXL
     ##########################################
-
+    #select experiments to be run
     experiments = [
         ('exp0', 'all'),
         ('exp1', 'diagnostic'),
@@ -46,23 +38,10 @@ def main():
         ('exp2', 'form'),
         ('exp3', 'rhythm')
        ]
-       
-    # for subclass in ['STTC', 'NORM', 'CD', 'MI', 'HYP']:
-    #     print('\#\#\#'+subclass+'\#\#\#')
-    #     datafolder = '../data/Superclass_sorted_records/'+subclass+'/'
-    #     outputfolder = '../output/latest2/'+subclass+'/'
-
-    #     for name, task in experiments:
-    #         e = SCP_Experiment(name, task, datafolder, outputfolder, models)
-    #         e.prepare()
-    #         print("finished preparing")
-    #         e.perform()
-    #         print("finished performing")
-    #         e.evaluate()
-#        utils.generate_ptbxl_summary_table(folder = outputfolder)
+    
 
 
- 
+    #run selected experiments
     for name, task in experiments:
         e = SCP_Experiment(name, task, datafolder, outputfolder, models)
         e.prepare()
@@ -72,19 +51,6 @@ def main():
         e.evaluate()
     # generate greate summary table
     utils.generate_ptbxl_summary_table(folder = outputfolder)
-
-    
-    # ##########################################
-    # # EXPERIMENT BASED ICBEB DATA
-    # ##########################################
-
-    # # e = SCP_Experiment('exp_ICBEB', 'all', datafolder_icbeb, outputfolder, models)
-    # # e.prepare()
-    # # e.perform()
-    # # e.evaluate()
-
-    # generate greate summary table
-    # utils.ICBEBE_table()
 
 if __name__ == "__main__":
     main()
